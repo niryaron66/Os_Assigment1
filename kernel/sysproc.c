@@ -40,7 +40,7 @@ sys_wait(void)
   uint64 p;
   uint64 p2;
   argaddr(0, &p);
-  argaddr(0, &p2);
+  argaddr(1, &p2);
 
   // if(argstr(1, msg, MAXARG) < 0)
   //   return -1;
@@ -107,4 +107,14 @@ sys_memsize(void)
 {
   // return size of running process memory in bytes
   return myproc()->sz;
+}
+
+uint64
+sys_set_ps_priority(void)
+{
+  int new_ps_priority;
+  argint(0, &new_ps_priority);
+  myproc()->ps_priority=new_ps_priority;
+  //set_ps_priority(new_ps_priority);  TODO : maybe return it 
+  return 0;
 }

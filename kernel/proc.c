@@ -68,6 +68,13 @@ cpuid()
   return id;
 }
 
+//TODO: maybe return it 
+// void 
+// set_ps_priority(int new_ps_priority)
+// {
+//   myproc()->ps_priority=new_ps_priority;
+// }
+
 // Return this CPU's cpu struct.
 // Interrupts must be disabled.
 struct cpu*
@@ -311,7 +318,21 @@ fork(void)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
-
+  np->ps_priority=5;
+  long long minAccumulator=__LONG_LONG_MAX__;
+  struct proc *pp;
+  for(pp = proc; pp < &proc[NPROC]; pp++)
+  {
+    if(pp->state==RUNNABLE || pp->state==RUNNING)
+    {
+      if(pp->accumulator<minAccumulator)
+        minAccumulator=pp->accumulator;
+    }
+  }
+  if(minAccumulator==__LONG_LONG_MAX__)
+    np->accumulator=0;
+  else
+    np->accumulator=minAccumulator;
   release(&np->lock);
 
   acquire(&wait_lock);
@@ -320,6 +341,7 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+
   release(&np->lock);
 
   return pid;
@@ -413,16 +435,15 @@ wait(uint64 addr,uint64 addr2)
             release(&wait_lock);
             return -1;
           }
-          copyout(p->pagetable, addr2, pp->exit_msg,sizeof(pp->exit_msg));
+
+          if(addr2 != 0 && copyout(p->pagetable, addr2, pp->exit_msg, //TODO maybe need cast and referance
+                                  sizeof(pp->exit_msg)) < 0 ) {
+
+            release(&pp->lock);
+            release(&wait_lock);
+            return -1;
+          }
           printf("%s",(char*)addr2);
-
-          // if(addr2 != 0 && copyout(p->pagetable, addr2, pp->exit_msg,
-          //                         sizeof(pp->exit_msg)) < 0 ) {
-
-          //   release(&pp->lock);
-          //   release(&wait_lock);
-          //   return -1;
-          // }
 
           freeproc(pp);
           release(&pp->lock);
@@ -461,23 +482,41 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-
+    long long minAccumulator=__LONG_LONG_MAX__;
+    struct proc *processToRun=&proc[0];
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
         // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
+        if(processToRun->state!=RUNNABLE)
+        {
+          minAccumulator=p->accumulator;
+          processToRun=p;
+        } 
+        else
+        {
+        if(p->accumulator<minAccumulator)
+          {
+            minAccumulator=p->accumulator;
+            processToRun=p;
+          }
+        }
+ 
       }
+      
       release(&p->lock);
     }
+    acquire(&processToRun->lock);
+    processToRun->state = RUNNING;
+    c->proc = processToRun;
+    swtch(&c->context, &processToRun->context);
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+    c->proc = 0;
+    release(&processToRun->lock);
+
   }
 }
 
@@ -514,6 +553,7 @@ yield(void)
 {
   struct proc *p = myproc();
   acquire(&p->lock);
+  p->accumulator+=p->ps_priority;
   p->state = RUNNABLE;
   sched();
   release(&p->lock);
@@ -583,7 +623,21 @@ wakeup(void *chan)
       acquire(&p->lock);
       if(p->state == SLEEPING && p->chan == chan) {
         p->state = RUNNABLE;
-      }
+        long long minAccumulator=__LONG_LONG_MAX__;
+        struct proc *pp;
+        for(pp = proc; pp < &proc[NPROC]; pp++)
+        {
+            if(pp->state==RUNNABLE || pp->state==RUNNING)
+            {
+                if(pp->accumulator<minAccumulator)
+                  minAccumulator=pp->accumulator;
+              }
+        }
+            if(minAccumulator==__LONG_LONG_MAX__) // TODO : maybe create function to return min 
+              p->accumulator=0;
+            else
+              p->accumulator=minAccumulator;
+        }
       release(&p->lock);
     }
   }
