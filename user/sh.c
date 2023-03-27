@@ -170,9 +170,9 @@ main(void)
 
     char buffer[32];  
     wait(0,buffer);
-    buffer[0]='a';
     printf("%s",buffer);
   }
+  // printf(proc()->exit_msg)
   exit(0,0);
 }
 

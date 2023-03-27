@@ -347,7 +347,7 @@ void
 exit(int status,char* msg)
 {
   struct proc *p = myproc();
-  safestrcpy(p->exit_msg ,msg , sizeof(msg));
+  safestrcpy(p->exit_msg ,msg , 32);
   if(p == initproc)
     panic("init exiting");
 
@@ -408,12 +408,22 @@ wait(uint64 addr,uint64 addr2)
           // Found one.
           pid = pp->pid;
           if(addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
-                                  sizeof(pp->xstate)) < 0 &&
-                                  copyout(p->pagetable, addr2, (char *)&pp->exit_msg, sizeof(pp->exit_msg)) < 0) {
+                                  sizeof(pp->xstate)) < 0 ) {
             release(&pp->lock);
             release(&wait_lock);
             return -1;
           }
+          copyout(p->pagetable, addr2, pp->exit_msg,sizeof(pp->exit_msg));
+          printf("%s",(char*)addr2);
+
+          // if(addr2 != 0 && copyout(p->pagetable, addr2, pp->exit_msg,
+          //                         sizeof(pp->exit_msg)) < 0 ) {
+
+          //   release(&pp->lock);
+          //   release(&wait_lock);
+          //   return -1;
+          // }
+
           freeproc(pp);
           release(&pp->lock);
           release(&wait_lock);
