@@ -48,7 +48,7 @@ int get_minimun_accumulator()
     }
   }
   // Return 0 If it is the only runnable process in the system
-  return numberOfRunnableProcesses == 1 ? 0 : minAccumulator ;
+  return numberOfRunnableProcesses == 1 ? 0 : minAccumulator;
 }
 
 // Allocate a page for each process's kernel stack.
@@ -496,38 +496,37 @@ void scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
-    struct proc *lowest_accum_proc = 0;
-    long long min_accum = __LONG_LONG_MAX__;
+    struct proc *processToRun = 0;
+    long long minAccumulator = __LONG_LONG_MAX__;
     for (p = proc; p < &proc[NPROC]; p++)
     {
-      if (p->state == RUNNABLE && p->accumulator < min_accum)
+      if (p->state == RUNNABLE && p->accumulator < minAccumulator)
       {
-        min_accum = p->accumulator;
-        lowest_accum_proc = p;
+        minAccumulator = p->accumulator;
+        processToRun = p;
       }
     }
-    if (min_accum == __LONG_LONG_MAX__)
+    if (processToRun)
     {
-      continue;
-    }
-    struct proc *running_lowest_accum_proc = lowest_accum_proc;
-    for (p = proc; p < &proc[NPROC]; p++)
-    {
-      if (p->accumulator == min_accum && p->state == RUNNABLE)
+      acquire(&processToRun->lock);
+      if (processToRun->state == RUNNABLE)
       {
-        running_lowest_accum_proc = p;
-        break;
+        processToRun->state = RUNNING;
+        c->proc = processToRun;
+        swtch(&c->context, &processToRun->context);
+        c->proc = 0;
       }
+      release(&processToRun->lock);
     }
-    acquire(&running_lowest_accum_proc->lock);
-    if (running_lowest_accum_proc->state == RUNNABLE)
-    {
-      running_lowest_accum_proc->state = RUNNING;
-      c->proc = running_lowest_accum_proc;
-      swtch(&c->context, &running_lowest_accum_proc->context);
-      c->proc = 0;
-    }
-    release(&running_lowest_accum_proc->lock);
+    // struct proc *processToRun = processToRun;
+    // for (p = proc; p < &proc[NPROC]; p++)
+    // {
+    //   if (p->accumulator == minAccumulator && p->state == RUNNABLE)
+    //   {
+    //     running_lowest_accum_proc = p;
+    //     break;
+    //   }
+    // }
   }
 }
 
