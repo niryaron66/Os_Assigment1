@@ -1,0 +1,1710 @@
+# Query: exit(
+# ContextLines: 1
+
+436 results - 28 files
+
+exit_changer.sh:
+   3  # place file in xv6 directory and run using 'bash exit_changer.sh' or './exit_changer.sh'
+   4: # adds another arguement to all 'exit' calls [exit(0) becomes exit(0,0)], can be easily modified to also work on 'wait'.
+   5  # use at your own risk, and absolutely backup everything before using, preferably using git.
+   6  # if you want to understand how it works, open vim on some file in the user directory for example 'vim cat.c',
+   7: # then manually type ':%s/exit(\([0-9]\+\));/exit(\1,0);/g'
+   8  # in kernel directory there is only 2 calls to exit, change them manually.
+   9  cd user
+  10: vim -c "argdo %s/exit(\(-\?[0-9]\+\|&\?[a-z,A-Z][a-z,A-Z,0-9]*\));/exit(\1,0);/g | update | q" *
+
+kernel/defs.h:
+  85  int             cpuid(void);
+  86: void            exit(int,char*);
+  87  int             fork(void);
+
+kernel/proc.c:
+  346  void
+  347: exit(int status,char* msg)
+  348  {
+
+  402        if(pp->parent == p){
+  403:         // make sure the child isn't still in exit() or swtch().
+  404          acquire(&pp->lock);
+
+kernel/syscall.c:
+  83  extern uint64 sys_fork(void);
+  84: extern uint64 sys_exit(void);
+  85  extern uint64 sys_wait(void);
+
+kernel/sysproc.c:
+   9  uint64
+  10: sys_exit(void) //TODO : check if need add char*
+  11  {
+
+  16      return -1;
+  17:   exit(n,msg);
+  18    return 0;  // not reached
+
+kernel/trap.c:
+  56      if(killed(p))
+  57:       exit(-1);
+  58  
+
+  76    if(killed(p))
+  77:     exit(-1);
+  78  
+
+user/cat.c:
+  14        fprintf(2, "cat: write error\n");
+  15:       exit(1);
+  16      }
+
+  19      fprintf(2, "cat: read error\n");
+  20:     exit(1);
+  21    }
+
+  30      cat(0);
+  31:     exit(0);
+  32    }
+
+  36        fprintf(2, "cat: cannot open %s\n", argv[i]);
+  37:       exit(1);
+  38      }
+
+  41    }
+  42:   exit(0);
+  43  }
+
+user/echo.c:
+  17    }
+  18:   exit(0);
+  19  }
+
+user/forktest.c:
+  27      if(pid == 0)
+  28:       exit(0);
+  29    }
+
+  32      print("fork claimed to work N times!\n");
+  33:     exit(1);
+  34    }
+
+  38        print("wait stopped early\n");
+  39:       exit(1);
+  40      }
+
+  44      print("wait got too many\n");
+  45:     exit(1);
+  46    }
+
+  54    forktest();
+  55:   exit(0);
+  56  }
+
+user/goodbye.c:
+  6    char* msg="Goodbye World xv6";
+  7:   exit(0,msg);
+  8  }
+
+user/grep.c:
+  43      fprintf(2, "usage: grep pattern [file ...]\n");
+  44:     exit(1);
+  45    }
+
+  49      grep(pattern, 0);
+  50:     exit(0);
+  51    }
+
+  55        printf("grep: cannot open %s\n", argv[i]);
+  56:       exit(1);
+  57      }
+
+  60    }
+  61:   exit(0);
+  62  }
+
+user/grind.c:
+   60      printf("grind: chdir grindir failed\n");
+   61:     exit(1);
+   62    }
+
+   78          printf("grind: chdir grindir failed\n");
+   79:         exit(1);
+   80        }
+
+  109        if(pid == 0){
+  110:         exit(0);
+  111        } else if(pid < 0){
+  112          printf("grind: fork failed\n");
+  113:         exit(1);
+  114        }
+
+  120          fork();
+  121:         exit(0);
+  122        } else if(pid < 0){
+  123          printf("grind: fork failed\n");
+  124:         exit(1);
+  125        }
+
+  135          close(open("a", O_CREATE|O_RDWR));
+  136:         exit(0);
+  137        } else if(pid < 0){
+  138          printf("grind: fork failed\n");
+  139:         exit(1);
+  140        }
+
+  142          printf("grind: chdir failed\n");
+  143:         exit(1);
+  144        }
+
+  150          kill(getpid());
+  151:         exit(0);
+  152        } else if(pid < 0){
+  153          printf("grind: fork failed\n");
+  154:         exit(1);
+  155        }
+
+  160          printf("grind: pipe failed\n");
+  161:         exit(1);
+  162        }
+
+  171            printf("grind: pipe read failed\n");
+  172:         exit(0);
+  173        } else if(pid < 0){
+  174          printf("grind: fork failed\n");
+  175:         exit(1);
+  176        }
+
+  188          unlink("x");
+  189:         exit(0);
+  190        } else if(pid < 0){
+  191          printf("grind: fork failed\n");
+  192:         exit(1);
+  193        }
+
+  201          printf("grind: create c failed\n");
+  202:         exit(1);
+  203        }
+
+  205          printf("grind: write c failed\n");
+  206:         exit(1);
+  207        }
+
+  210          printf("grind: fstat failed\n");
+  211:         exit(1);
+  212        }
+
+  214          printf("grind: fstat reports wrong size %d\n", (int)st.size);
+  215:         exit(1);
+  216        }
+
+  218          printf("grind: fstat reports crazy i-number %d\n", st.ino);
+  219:         exit(1);
+  220        }
+
+  227          fprintf(2, "grind: pipe failed\n");
+  228:         exit(1);
+  229        }
+
+  231          fprintf(2, "grind: pipe failed\n");
+  232:         exit(1);
+  233        }
+
+  241            fprintf(2, "grind: dup failed\n");
+  242:           exit(1);
+  243          }
+
+  247          fprintf(2, "grind: echo: not found\n");
+  248:         exit(2);
+  249        } else if(pid1 < 0){
+  250          fprintf(2, "grind: fork failed\n");
+  251:         exit(3);
+  252        }
+
+  259            fprintf(2, "grind: dup failed\n");
+  260:           exit(4);
+  261          }
+
+  265            fprintf(2, "grind: dup failed\n");
+  266:           exit(5);
+  267          }
+
+  271          fprintf(2, "grind: cat: not found\n");
+  272:         exit(6);
+  273        } else if(pid2 < 0){
+  274          fprintf(2, "grind: fork failed\n");
+  275:         exit(7);
+  276        }
+
+  289          printf("grind: exec pipeline failed %d %d \"%s\"\n", st1, st2, buf);
+  290:         exit(1);
+  291        }
+
+  304      printf("grind: fork failed\n");
+  305:     exit(1);
+  306    }
+
+  309      go(0);
+  310:     exit(0);
+  311    }
+
+  315      printf("grind: fork failed\n");
+  316:     exit(1);
+  317    }
+
+  320      go(1);
+  321:     exit(0);
+  322    }
+
+  332  
+  333:   exit(0);
+  334  }
+
+  342        iter();
+  343:       exit(0);
+  344      }
+
+user/helloworld.c:
+  6    printf("Hello World xv6\n");
+  7:   exit(0);
+  8  }
+
+user/init.c:
+  30        printf("init: fork failed\n");
+  31:       exit(1);
+  32      }
+
+  35        printf("init: exec sh failed\n");
+  36:       exit(1);
+  37      }
+
+  47          printf("init: wait returned an error\n");
+  48:         exit(1);
+  49        } else {
+
+user/initcode.S:
+  13  
+  14: # for(;;) exit();
+  15  exit:
+
+user/kill.c:
+  11      fprintf(2, "usage: kill pid...\n");
+  12:     exit(1);
+  13    }
+
+  15      kill(atoi(argv[i]));
+  16:   exit(0);
+  17  }
+
+user/ln.c:
+   9      fprintf(2, "Usage: ln old new\n");
+  10:     exit(1);
+  11    }
+
+  13      fprintf(2, "link %s %s: failed\n", argv[1], argv[2]);
+  14:   exit(0);
+  15  }
+
+user/ls.c:
+  80      ls(".");
+  81:     exit(0);
+  82    }
+
+  84      ls(argv[i]);
+  85:   exit(0);
+  86  }
+
+user/memsize_test.c:
+  11  
+  12:   exit(0);
+  13  }
+
+user/mkdir.c:
+  11      fprintf(2, "Usage: mkdir files...\n");
+  12:     exit(1);
+  13    }
+
+  21  
+  22:   exit(0);
+  23  }
+
+user/rm.c:
+  11      fprintf(2, "Usage: rm files...\n");
+  12:     exit(1);
+  13    }
+
+  21  
+  22:   exit(0);
+  23  }
+
+user/sh.c:
+   68    if(cmd == 0)
+   69:     exit(1);
+   70  
+
+   77      if(ecmd->argv[0] == 0)
+   78:       exit(1);
+   79      exec(ecmd->argv[0], ecmd->argv);
+
+   87        fprintf(2, "open %s failed\n", rcmd->file);
+   88:       exit(1);
+   89      }
+
+  130    }
+  131:   exit(0);
+  132  }
+
+  171    }
+  172:   exit(0);
+  173  }
+
+  178    fprintf(2, "%s\n", s);
+  179:   exit(1);
+  180  }
+
+user/stressfs.c:
+  47  
+  48:   exit(0);
+  49  }
+
+user/ulib.c:
+   6  //
+   7: // wrapper so that it's OK if main() does not call exit().
+   8  //
+
+  13    main();
+  14:   exit(0);
+  15  }
+
+user/user.h:
+  4  int fork(void);
+  5: int exit(int,char*) __attribute__((noreturn));
+  6  int wait(int*,char*);
+
+user/usertests.c:
+    42        printf("open(copyin1) failed\n");
+    43:       exit(1);
+    44      }
+
+    47        printf("write(fd, %p, 8192) returned %d, not -1\n", addr, n);
+    48:       exit(1);
+    49      }
+
+    55        printf("write(1, %p, 8192) returned %d, not -1 or 0\n", addr, n);
+    56:       exit(1);
+    57      }
+
+    61        printf("pipe() failed\n");
+    62:       exit(1);
+    63      }
+
+    66        printf("write(pipe, %p, 8192) returned %d, not -1 or 0\n", addr, n);
+    67:       exit(1);
+    68      }
+
+    86        printf("open(README) failed\n");
+    87:       exit(1);
+    88      }
+
+    91        printf("read(fd, %p, 8192) returned %d, not -1 or 0\n", addr, n);
+    92:       exit(1);
+    93      }
+
+    98        printf("pipe() failed\n");
+    99:       exit(1);
+   100      }
+
+   103        printf("pipe write failed\n");
+   104:       exit(1);
+   105      }
+
+   108        printf("read(pipe, %p, 8192) returned %d, not -1 or 0\n", addr, n);
+   109:       exit(1);
+   110      }
+
+   127        printf("open(%p) returned %d, not -1\n", addr, fd);
+   128:       exit(1);
+   129      }
+
+   147      printf("unlink(%s) returned %d, not -1\n", b, ret);
+   148:     exit(1);
+   149    }
+
+   153      printf("open(%s) returned %d, not -1\n", b, fd);
+   154:     exit(1);
+   155    }
+
+   159      printf("link(%s, %s) returned %d, not -1\n", b, b, ret);
+   160:     exit(1);
+   161    }
+
+   166      printf("exec(%s) returned %d, not -1\n", b, fd);
+   167:     exit(1);
+   168    }
+
+   172      printf("fork failed\n");
+   173:     exit(1);
+   174    }
+
+   183        printf("exec(echo, BIG) returned %d, not -1\n", fd);
+   184:       exit(1);
+   185      }
+   186:     exit(747); // OK
+   187    }
+
+   192      printf("exec(echo, BIG) succeeded, should have failed\n");
+   193:     exit(1);
+   194    }
+
+   208      printf("oops\n");
+   209:     exit(1);
+   210    }
+
+   217      printf("unlink(%s) returned %d, not -1\n", b, ret);
+   218:     exit(1);
+   219    }
+
+   223      printf("open(%s) returned %d, not -1\n", b, fd);
+   224:     exit(1);
+   225    }
+
+   229      printf("link(%s, %s) returned %d, not -1\n", b, b, ret);
+   230:     exit(1);
+   231    }
+
+   236      printf("exec(%s) returned %d, not -1\n", b, fd);
+   237:     exit(1);
+   238    }
+
+   251      printf("sbrk(rwsbrk) failed\n");
+   252:     exit(1);
+   253    }
+
+   256      printf("sbrk(rwsbrk) shrink failed\n");
+   257:     exit(1);
+   258    }
+
+   262      printf("open(rwsbrk) failed\n");
+   263:     exit(1);
+   264    }
+
+   267      printf("write(fd, %p, 1024) returned %d, not -1\n", a+4096, n);
+   268:     exit(1);
+   269    }
+
+   275      printf("open(rwsbrk) failed\n");
+   276:     exit(1);
+   277    }
+
+   280      printf("read(fd, %p, 10) returned %d, not -1\n", a+4096, n);
+   281:     exit(1);
+   282    }
+
+   284    
+   285:   exit(0);
+   286  }
+
+   302      printf("%s: read %d bytes, wanted 4\n", s, n);
+   303:     exit(1);
+   304    }
+
+   312      printf("%s: read %d bytes, wanted 0\n", s, n);
+   313:     exit(1);
+   314    }
+
+   319      printf("%s: read %d bytes, wanted 0\n", s, n);
+   320:     exit(1);
+   321    }
+
+   327      printf("%s: read %d bytes, wanted 6\n", s, n);
+   328:     exit(1);
+   329    }
+
+   333      printf("%s: read %d bytes, wanted 2\n", s, n);
+   334:     exit(1);
+   335    }
+
+   360      printf("%s: write returned %d, expected -1\n", s, n);
+   361:     exit(1);
+   362    }
+
+   378      printf("%s: fork failed\n", s);
+   379:     exit(1);
+   380    }
+
+   387          printf("%s: open failed\n", s);
+   388:         exit(1);
+   389        }
+
+   392          printf("%s: write got %d, expected 10\n", s, n);
+   393:         exit(1);
+   394        }
+
+   399      }
+   400:     exit(0);
+   401    }
+
+   406        printf("%s: open failed\n", s);
+   407:       exit(1);
+   408      }
+
+   411        printf("%s: write got %d, expected 3\n", s, n);
+   412:       exit(1);
+   413      }
+
+   418    unlink("truncfile");
+   419:   exit(xstatus);
+   420  }
+
+   428      printf("%s: mkdir failed\n", s);
+   429:     exit(1);
+   430    }
+
+   432      printf("%s: chdir iputdir failed\n", s);
+   433:     exit(1);
+   434    }
+
+   436      printf("%s: unlink ../iputdir failed\n", s);
+   437:     exit(1);
+   438    }
+
+   440      printf("%s: chdir / failed\n", s);
+   441:     exit(1);
+   442    }
+
+   444  
+   445: // does exit() call iput(p->cwd) in a transaction?
+   446  void
+
+   453      printf("%s: fork failed\n", s);
+   454:     exit(1);
+   455    }
+
+   458        printf("%s: mkdir failed\n", s);
+   459:       exit(1);
+   460      }
+
+   462        printf("%s: child chdir failed\n", s);
+   463:       exit(1);
+   464      }
+
+   466        printf("%s: unlink ../iputdir failed\n", s);
+   467:       exit(1);
+   468      }
+   469:     exit(0);
+   470    }
+   471    wait(&xstatus);
+   472:   exit(xstatus);
+   473  }
+
+   492      printf("%s: mkdir oidir failed\n", s);
+   493:     exit(1);
+   494    }
+
+   497      printf("%s: fork failed\n", s);
+   498:     exit(1);
+   499    }
+
+   503        printf("%s: open directory for write succeeded\n", s);
+   504:       exit(1);
+   505      }
+   506:     exit(0);
+   507    }
+
+   510      printf("%s: unlink failed\n", s);
+   511:     exit(1);
+   512    }
+   513    wait(&xstatus);
+   514:   exit(xstatus);
+   515  }
+
+   526      printf("%s: open echo failed!\n", s);
+   527:     exit(1);
+   528    }
+
+   532      printf("%s: open doesnotexist succeeded!\n", s);
+   533:     exit(1);
+   534    }
+
+   546      printf("%s: error: creat small failed!\n", s);
+   547:     exit(1);
+   548    }
+
+   551        printf("%s: error: write aa %d new file failed\n", s, i);
+   552:       exit(1);
+   553      }
+
+   555        printf("%s: error: write bb %d new file failed\n", s, i);
+   556:       exit(1);
+   557      }
+
+   562      printf("%s: error: open small failed!\n", s);
+   563:     exit(1);
+   564    }
+
+   567      printf("%s: read failed\n", s);
+   568:     exit(1);
+   569    }
+
+   573      printf("%s: unlink small failed\n", s);
+   574:     exit(1);
+   575    }
+
+   585      printf("%s: error: creat big failed!\n", s);
+   586:     exit(1);
+   587    }
+
+   592        printf("%s: error: write big file failed\n", s, i);
+   593:       exit(1);
+   594      }
+
+   601      printf("%s: error: open big failed!\n", s);
+   602:     exit(1);
+   603    }
+
+   610          printf("%s: read only %d blocks from big", s, n);
+   611:         exit(1);
+   612        }
+
+   615        printf("%s: read failed %d\n", s, i);
+   616:       exit(1);
+   617      }
+
+   620               n, ((int*)buf)[0]);
+   621:       exit(1);
+   622      }
+
+   627      printf("%s: unlink big failed\n", s);
+   628:     exit(1);
+   629    }
+
+   658      printf("%s: mkdir failed\n", s);
+   659:     exit(1);
+   660    }
+
+   663      printf("%s: chdir dir0 failed\n", s);
+   664:     exit(1);
+   665    }
+
+   668      printf("%s: chdir .. failed\n", s);
+   669:     exit(1);
+   670    }
+
+   673      printf("%s: unlink dir0 failed\n", s);
+   674:     exit(1);
+   675    }
+
+   688       printf("%s: fork failed\n", s);
+   689:      exit(1);
+   690    }
+
+   695        printf("%s: create failed\n", s);
+   696:       exit(1);
+   697      }
+
+   699        printf("%s: wrong fd\n", s);
+   700:       exit(1);
+   701      }
+
+   703        printf("%s: exec echo failed\n", s);
+   704:       exit(1);
+   705      }
+
+   711    if(xstatus != 0)
+   712:     exit(xstatus);
+   713  
+
+   716      printf("%s: open failed\n", s);
+   717:     exit(1);
+   718    }
+
+   720      printf("%s: read failed\n", s);
+   721:     exit(1);
+   722    }
+
+   724    if(buf[0] == 'O' && buf[1] == 'K')
+   725:     exit(0);
+   726    else {
+   727      printf("%s: wrong output\n", s);
+   728:     exit(1);
+   729    }
+
+   743      printf("%s: pipe() failed\n", s);
+   744:     exit(1);
+   745    }
+
+   754          printf("%s: pipe1 oops 1\n", s);
+   755:         exit(1);
+   756        }
+   757      }
+   758:     exit(0);
+   759    } else if(pid > 0){
+
+   776        printf("%s: pipe1 oops 3 total %d\n", total);
+   777:       exit(1);
+   778      }
+
+   780      wait(&xstatus);
+   781:     exit(xstatus);
+   782    } else {
+   783      printf("%s: fork() failed\n", s);
+   784:     exit(1);
+   785    }
+
+   798        printf("%s: fork failed\n", s);
+   799:       exit(1);
+   800      }
+
+   804        }
+   805:       exit(0);
+   806      }
+
+   811         printf("%s: status should be -1\n", s);
+   812:        exit(1);
+   813      }
+   814    }
+   815:   exit(0);
+   816  }
+
+   827      printf("%s: fork failed", s);
+   828:     exit(1);
+   829    }
+
+   836      printf("%s: fork failed\n", s);
+   837:     exit(1);
+   838    }
+
+   846       printf("%s: fork failed\n", s);
+   847:      exit(1);
+   848    }
+
+   883        printf("%s: fork failed\n", s);
+   884:       exit(1);
+   885      }
+
+   889          printf("%s: wait wrong pid\n", s);
+   890:         exit(1);
+   891        }
+
+   893          printf("%s: wait wrong exit status\n", s);
+   894:         exit(1);
+   895        }
+   896      } else {
+   897:       exit(i);
+   898      }
+
+   912        printf("%s: fork failed\n", s);
+   913:       exit(1);
+   914      }
+
+   917          printf("%s: wait wrong pid\n", s);
+   918:         exit(1);
+   919        }
+
+   923          kill(master_pid);
+   924:         exit(1);
+   925        }
+   926:       exit(0);
+   927      }
+   928    }
+   929:   exit(0);
+   930  }
+   931  
+   932: // what if two children exit() at the same time?
+   933  void
+
+   939        printf("%s: fork failed\n", s);
+   940:       exit(1);
+   941      }
+   942      if(pid1 == 0){
+   943:       exit(0);
+   944      } else {
+
+   947          printf("%s: fork failed\n", s);
+   948:         exit(1);
+   949        }
+   950        if(pid2 == 0){
+   951:         exit(0);
+   952        } else {
+
+   969        printf("%s: fork failed", s);
+   970:       exit(1);
+   971      }
+
+   975          if(pid1 < 0){
+   976:           exit(1);
+   977          }
+   978          if(pid1 == 0){
+   979:           exit(0);
+   980          }
+
+   982        }
+   983:       exit(0);
+   984      }
+
+   991        printf("%s: fork in child failed", s);
+   992:       exit(1);
+   993      }
+
+  1004      printf("%s: fork failed", s);
+  1005:     exit(1);
+  1006    }
+
+  1010        if(fd >= 0){
+  1011:         exit(0);
+  1012        }
+
+  1017  
+  1018:     exit(0);
+  1019    }
+
+  1027  // regression test. does reparent() violate the parent-then-child
+  1028: // locking order when giving away a child to init, so that exit()
+  1029  // deadlocks against init's wait()? also used to trigger a "panic:
+  1030: // release" due to exit() releasing a different p->parent->lock than
+  1031  // it acquired.
+
+  1038        printf("fork failed\n");
+  1039:       exit(1);
+  1040      }
+
+  1043        fork();
+  1044:       exit(0);
+  1045      }
+
+  1048  
+  1049:   exit(0);
+  1050  }
+
+  1072        printf("couldn't allocate mem?!!\n", s);
+  1073:       exit(1);
+  1074      }
+  1075      free(m1);
+  1076:     exit(0);
+  1077    } else {
+
+  1082        // so OK.
+  1083:       exit(0);
+  1084      }
+  1085:     exit(xstatus);
+  1086    }
+
+  1103      printf("%s: cannot open sharedfd for writing", s);
+  1104:     exit(1);
+  1105    }
+
+  1110        printf("%s: write sharedfd failed\n", s);
+  1111:       exit(1);
+  1112      }
+
+  1114    if(pid == 0) {
+  1115:     exit(0);
+  1116    } else {
+
+  1119      if(xstatus != 0)
+  1120:       exit(xstatus);
+  1121    }
+
+  1126      printf("%s: cannot open sharedfd for reading\n", s);
+  1127:     exit(1);
+  1128    }
+
+  1140    if(nc == N*SZ && np == N*SZ){
+  1141:     exit(0);
+  1142    } else {
+  1143      printf("%s: nc/np test fails\n", s);
+  1144:     exit(1);
+  1145    }
+
+  1164        printf("fork failed\n", s);
+  1165:       exit(1);
+  1166      }
+
+  1171          printf("create failed\n", s);
+  1172:         exit(1);
+  1173        }
+
+  1178            printf("write failed %d\n", n);
+  1179:           exit(1);
+  1180          }
+  1181        }
+  1182:       exit(0);
+  1183      }
+
+  1189      if(xstatus != 0)
+  1190:       exit(xstatus);
+  1191    }
+
+  1200            printf("wrong char\n", s);
+  1201:           exit(1);
+  1202          }
+
+  1208        printf("wrong length %d\n", total);
+  1209:       exit(1);
+  1210      }
+
+  1226        printf("fork failed\n", s);
+  1227:       exit(1);
+  1228      }
+
+  1237            printf("%s: create failed\n", s);
+  1238:           exit(1);
+  1239          }
+
+  1244              printf("%s: unlink failed\n", s);
+  1245:             exit(1);
+  1246            }
+
+  1248        }
+  1249:       exit(0);
+  1250      }
+
+  1256      if(xstatus != 0)
+  1257:       exit(1);
+  1258    }
+
+  1267          printf("%s: oops createdelete %s didn't exist\n", s, name);
+  1268:         exit(1);
+  1269        } else if((i >= 1 && i < N/2) && fd >= 0){
+  1270          printf("%s: oops createdelete %s did exist\n", s, name);
+  1271:         exit(1);
+  1272        }
+
+  1296      printf("%s: create unlinkread failed\n", s);
+  1297:     exit(1);
+  1298    }
+
+  1304      printf("%s: open unlinkread failed\n", s);
+  1305:     exit(1);
+  1306    }
+
+  1308      printf("%s: unlink unlinkread failed\n", s);
+  1309:     exit(1);
+  1310    }
+
+  1317      printf("%s: unlinkread read failed", s);
+  1318:     exit(1);
+  1319    }
+
+  1321      printf("%s: unlinkread wrong data\n", s);
+  1322:     exit(1);
+  1323    }
+
+  1325      printf("%s: unlinkread write failed\n", s);
+  1326:     exit(1);
+  1327    }
+
+  1343      printf("%s: create lf1 failed\n", s);
+  1344:     exit(1);
+  1345    }
+
+  1347      printf("%s: write lf1 failed\n", s);
+  1348:     exit(1);
+  1349    }
+
+  1353      printf("%s: link lf1 lf2 failed\n", s);
+  1354:     exit(1);
+  1355    }
+
+  1359      printf("%s: unlinked lf1 but it is still there!\n", s);
+  1360:     exit(1);
+  1361    }
+
+  1365      printf("%s: open lf2 failed\n", s);
+  1366:     exit(1);
+  1367    }
+
+  1369      printf("%s: read lf2 failed\n", s);
+  1370:     exit(1);
+  1371    }
+
+  1375      printf("%s: link lf2 lf2 succeeded! oops\n", s);
+  1376:     exit(1);
+  1377    }
+
+  1381      printf("%s: link non-existent succeeded! oops\n", s);
+  1382:     exit(1);
+  1383    }
+
+  1386      printf("%s: link . lf1 succeeded! oops\n", s);
+  1387:     exit(1);
+  1388    }
+
+  1417          printf("concreate create %s failed\n", file);
+  1418:         exit(1);
+  1419        }
+
+  1422      if(pid == 0) {
+  1423:       exit(0);
+  1424      } else {
+
+  1427        if(xstatus != 0)
+  1428:         exit(1);
+  1429      }
+
+  1441          printf("%s: concreate weird file %s\n", s, de.name);
+  1442:         exit(1);
+  1443        }
+
+  1445          printf("%s: concreate duplicate file %s\n", s, de.name);
+  1446:         exit(1);
+  1447        }
+
+  1455      printf("%s: concreate not enough files in directory listing\n", s);
+  1456:     exit(1);
+  1457    }
+
+  1463        printf("%s: fork failed\n", s);
+  1464:       exit(1);
+  1465      }
+
+  1482      if(pid == 0)
+  1483:       exit(0);
+  1484      else
+
+  1499      printf("%s: fork failed\n", s);
+  1500:     exit(1);
+  1501    }
+
+  1517    else
+  1518:     exit(0);
+  1519  }
+
+  1529      printf("%s: mkdir dd failed\n", s);
+  1530:     exit(1);
+  1531    }
+
+  1535      printf("%s: create dd/ff failed\n", s);
+  1536:     exit(1);
+  1537    }
+
+  1542      printf("%s: unlink dd (non-empty dir) succeeded!\n", s);
+  1543:     exit(1);
+  1544    }
+
+  1547      printf("subdir mkdir dd/dd failed\n", s);
+  1548:     exit(1);
+  1549    }
+
+  1553      printf("%s: create dd/dd/ff failed\n", s);
+  1554:     exit(1);
+  1555    }
+
+  1561      printf("%s: open dd/dd/../ff failed\n", s);
+  1562:     exit(1);
+  1563    }
+
+  1566      printf("%s: dd/dd/../ff wrong content\n", s);
+  1567:     exit(1);
+  1568    }
+
+  1572      printf("link dd/dd/ff dd/dd/ffff failed\n", s);
+  1573:     exit(1);
+  1574    }
+
+  1577      printf("%s: unlink dd/dd/ff failed\n", s);
+  1578:     exit(1);
+  1579    }
+
+  1581      printf("%s: open (unlinked) dd/dd/ff succeeded\n", s);
+  1582:     exit(1);
+  1583    }
+
+  1586      printf("%s: chdir dd failed\n", s);
+  1587:     exit(1);
+  1588    }
+
+  1590      printf("%s: chdir dd/../../dd failed\n", s);
+  1591:     exit(1);
+  1592    }
+
+  1594      printf("chdir dd/../../dd failed\n", s);
+  1595:     exit(1);
+  1596    }
+
+  1598      printf("%s: chdir ./.. failed\n", s);
+  1599:     exit(1);
+  1600    }
+
+  1604      printf("%s: open dd/dd/ffff failed\n", s);
+  1605:     exit(1);
+  1606    }
+
+  1608      printf("%s: read dd/dd/ffff wrong len\n", s);
+  1609:     exit(1);
+  1610    }
+
+  1614      printf("%s: open (unlinked) dd/dd/ff succeeded!\n", s);
+  1615:     exit(1);
+  1616    }
+
+  1619      printf("%s: create dd/ff/ff succeeded!\n", s);
+  1620:     exit(1);
+  1621    }
+
+  1623      printf("%s: create dd/xx/ff succeeded!\n", s);
+  1624:     exit(1);
+  1625    }
+
+  1627      printf("%s: create dd succeeded!\n", s);
+  1628:     exit(1);
+  1629    }
+
+  1631      printf("%s: open dd rdwr succeeded!\n", s);
+  1632:     exit(1);
+  1633    }
+
+  1635      printf("%s: open dd wronly succeeded!\n", s);
+  1636:     exit(1);
+  1637    }
+
+  1639      printf("%s: link dd/ff/ff dd/dd/xx succeeded!\n", s);
+  1640:     exit(1);
+  1641    }
+
+  1643      printf("%s: link dd/xx/ff dd/dd/xx succeeded!\n", s);
+  1644:     exit(1);
+  1645    }
+
+  1647      printf("%s: link dd/ff dd/dd/ffff succeeded!\n", s);
+  1648:     exit(1);
+  1649    }
+
+  1651      printf("%s: mkdir dd/ff/ff succeeded!\n", s);
+  1652:     exit(1);
+  1653    }
+
+  1655      printf("%s: mkdir dd/xx/ff succeeded!\n", s);
+  1656:     exit(1);
+  1657    }
+
+  1659      printf("%s: mkdir dd/dd/ffff succeeded!\n", s);
+  1660:     exit(1);
+  1661    }
+
+  1663      printf("%s: unlink dd/xx/ff succeeded!\n", s);
+  1664:     exit(1);
+  1665    }
+
+  1667      printf("%s: unlink dd/ff/ff succeeded!\n", s);
+  1668:     exit(1);
+  1669    }
+
+  1671      printf("%s: chdir dd/ff succeeded!\n", s);
+  1672:     exit(1);
+  1673    }
+
+  1675      printf("%s: chdir dd/xx succeeded!\n", s);
+  1676:     exit(1);
+  1677    }
+
+  1680      printf("%s: unlink dd/dd/ff failed\n", s);
+  1681:     exit(1);
+  1682    }
+
+  1684      printf("%s: unlink dd/ff failed\n", s);
+  1685:     exit(1);
+  1686    }
+
+  1688      printf("%s: unlink non-empty dd succeeded!\n", s);
+  1689:     exit(1);
+  1690    }
+
+  1692      printf("%s: unlink dd/dd failed\n", s);
+  1693:     exit(1);
+  1694    }
+
+  1696      printf("%s: unlink dd failed\n", s);
+  1697:     exit(1);
+  1698    }
+
+  1711        printf("%s: cannot create bigwrite\n", s);
+  1712:       exit(1);
+  1713      }
+
+  1718          printf("%s: write(%d) ret %d\n", s, sz, cc);
+  1719:         exit(1);
+  1720        }
+
+  1737      printf("%s: cannot create bigfile", s);
+  1738:     exit(1);
+  1739    }
+
+  1743        printf("%s: write bigfile failed\n", s);
+  1744:       exit(1);
+  1745      }
+
+  1751      printf("%s: cannot open bigfile\n", s);
+  1752:     exit(1);
+  1753    }
+
+  1758        printf("%s: read bigfile failed\n", s);
+  1759:       exit(1);
+  1760      }
+
+  1764        printf("%s: short read bigfile\n", s);
+  1765:       exit(1);
+  1766      }
+
+  1768        printf("%s: read bigfile wrong data\n", s);
+  1769:       exit(1);
+  1770      }
+
+  1775      printf("%s: read bigfile wrong total\n", s);
+  1776:     exit(1);
+  1777    }
+
+  1789      printf("%s: mkdir 12345678901234 failed\n", s);
+  1790:     exit(1);
+  1791    }
+
+  1793      printf("%s: mkdir 12345678901234/123456789012345 failed\n", s);
+  1794:     exit(1);
+  1795    }
+
+  1798      printf("%s: create 123456789012345/123456789012345/123456789012345 failed\n", s);
+  1799:     exit(1);
+  1800    }
+
+  1804      printf("%s: open 12345678901234/12345678901234/12345678901234 failed\n", s);
+  1805:     exit(1);
+  1806    }
+
+  1810      printf("%s: mkdir 12345678901234/12345678901234 succeeded!\n", s);
+  1811:     exit(1);
+  1812    }
+
+  1814      printf("%s: mkdir 12345678901234/123456789012345 succeeded!\n", s);
+  1815:     exit(1);
+  1816    }
+
+  1831      printf("%s: mkdir dots failed\n", s);
+  1832:     exit(1);
+  1833    }
+
+  1835      printf("%s: chdir dots failed\n", s);
+  1836:     exit(1);
+  1837    }
+
+  1839      printf("%s: rm . worked!\n", s);
+  1840:     exit(1);
+  1841    }
+
+  1843      printf("%s: rm .. worked!\n", s);
+  1844:     exit(1);
+  1845    }
+
+  1847      printf("%s: chdir / failed\n", s);
+  1848:     exit(1);
+  1849    }
+
+  1851      printf("%s: unlink dots/. worked!\n", s);
+  1852:     exit(1);
+  1853    }
+
+  1855      printf("%s: unlink dots/.. worked!\n", s);
+  1856:     exit(1);
+  1857    }
+
+  1859      printf("%s: unlink dots failed!\n", s);
+  1860:     exit(1);
+  1861    }
+
+  1871      printf("%s: create dirfile failed\n", s);
+  1872:     exit(1);
+  1873    }
+
+  1876      printf("%s: chdir dirfile succeeded!\n", s);
+  1877:     exit(1);
+  1878    }
+
+  1881      printf("%s: create dirfile/xx succeeded!\n", s);
+  1882:     exit(1);
+  1883    }
+
+  1886      printf("%s: create dirfile/xx succeeded!\n", s);
+  1887:     exit(1);
+  1888    }
+
+  1890      printf("%s: mkdir dirfile/xx succeeded!\n", s);
+  1891:     exit(1);
+  1892    }
+
+  1894      printf("%s: unlink dirfile/xx succeeded!\n", s);
+  1895:     exit(1);
+  1896    }
+
+  1898      printf("%s: link to dirfile/xx succeeded!\n", s);
+  1899:     exit(1);
+  1900    }
+
+  1902      printf("%s: unlink dirfile failed!\n", s);
+  1903:     exit(1);
+  1904    }
+
+  1908      printf("%s: open . for writing succeeded!\n", s);
+  1909:     exit(1);
+  1910    }
+
+  1913      printf("%s: write . succeeded!\n", s);
+  1914:     exit(1);
+  1915    }
+
+  1928        printf("%s: mkdir irefd failed\n", s);
+  1929:       exit(1);
+  1930      }
+
+  1932        printf("%s: chdir irefd failed\n", s);
+  1933:       exit(1);
+  1934      }
+
+  1969      if(pid == 0)
+  1970:       exit(0);
+  1971    }
+
+  1974      printf("%s: no fork at all!\n", s);
+  1975:     exit(1);
+  1976    }
+
+  1979      printf("%s: fork claimed to work 1000 times!\n", s);
+  1980:     exit(1);
+  1981    }
+
+  1985        printf("%s: wait stopped early\n", s);
+  1986:       exit(1);
+  1987      }
+
+  1991      printf("%s: wait got too many\n", s);
+  1992:     exit(1);
+  1993    }
+
+  2006      printf("fork failed in sbrkbasic\n");
+  2007:     exit(1);
+  2008    }
+
+  2012        // it's OK if this fails.
+  2013:       exit(0);
+  2014      }
+
+  2022      // a pagefault should have killed this process.
+  2023:     exit(1);
+  2024    }
+
+  2028      printf("%s: too much memory allocated!\n", s);
+  2029:     exit(1);
+  2030    }
+
+  2037        printf("%s: sbrk test failed %d %x %x\n", s, i, a, b);
+  2038:       exit(1);
+  2039      }
+
+  2045      printf("%s: sbrk test fork failed\n", s);
+  2046:     exit(1);
+  2047    }
+
+  2051      printf("%s: sbrk test failed post-fork\n", s);
+  2052:     exit(1);
+  2053    }
+  2054    if(pid == 0)
+  2055:     exit(0);
+  2056    wait(&xstatus);
+  2057:   exit(xstatus);
+  2058  }
+
+  2074      printf("%s: sbrk test failed to grow big address space; enough phys mem?\n", s);
+  2075:     exit(1);
+  2076    }
+
+  2090      printf("%s: sbrk could not deallocate\n", s);
+  2091:     exit(1);
+  2092    }
+
+  2095      printf("%s: sbrk deallocation produced wrong address, a %x c %x\n", s, a, c);
+  2096:     exit(1);
+  2097    }
+
+  2103      printf("%s: sbrk re-allocation failed, a %x c %x\n", s, a, c);
+  2104:     exit(1);
+  2105    }
+
+  2108      printf("%s: sbrk de-allocation didn't really deallocate\n", s);
+  2109:     exit(1);
+  2110    }
+
+  2115      printf("%s: sbrk downsize failed, a %x c %x\n", s, a, c);
+  2116:     exit(1);
+  2117    }
+
+  2130        printf("%s: fork failed\n", s);
+  2131:       exit(1);
+  2132      }
+
+  2134        printf("%s: oops could read %x = %x\n", s, a, *a);
+  2135:       exit(1);
+  2136      }
+
+  2139      if(xstatus != -1)  // did kernel kill child?
+  2140:       exit(1);
+  2141    }
+
+  2153        printf("%s: fork failed\n", s);
+  2154:       exit(1);
+  2155      }
+
+  2158        printf("%s: oops wrote %x\n", s, a);
+  2159:       exit(1);
+  2160      }
+
+  2163      if(xstatus != -1)  // did kernel kill child?
+  2164:       exit(1);
+  2165    }
+
+  2182      printf("%s: pipe() failed\n", s);
+  2183:     exit(1);
+  2184    }
+
+  2207      printf("%s: failed sbrk leaked memory\n", s);
+  2208:     exit(1);
+  2209    }
+
+  2214      printf("%s: fork failed\n", s);
+  2215:     exit(1);
+  2216    }
+
+  2229      printf("%s: allocate a lot of memory succeeded %d\n", s, n);
+  2230:     exit(1);
+  2231    }
+
+  2233    if(xstatus != -1 && xstatus != 2)
+  2234:     exit(1);
+  2235  }
+
+  2249      printf("%s: open sbrk failed\n", s);
+  2250:     exit(1);
+  2251    }
+
+  2253      printf("%s: write sbrk failed\n", s);
+  2254:     exit(1);
+  2255    }
+
+  2261      printf("%s: pipe() failed\n", s);
+  2262:     exit(1);
+  2263    } 
+
+  2276        printf("%s: link should not succeed\n", s);
+  2277:       exit(1);
+  2278      }
+
+  2291        printf("%s: bss test failed\n", s);
+  2292:       exit(1);
+  2293      }
+
+  2315      close(fd);
+  2316:     exit(0);
+  2317    } else if(pid < 0){
+  2318      printf("%s: bigargtest: fork failed\n", s);
+  2319:     exit(1);
+  2320    }
+
+  2323    if(xstatus != 0)
+  2324:     exit(xstatus);
+  2325    fd = open("bigarg-ok", 0);
+
+  2327      printf("%s: bigarg test failed!\n", s);
+  2328:     exit(1);
+  2329    }
+
+  2391      printf("%s: open failed\n", s);
+  2392:     exit(1);
+  2393    }
+
+  2411      printf("%s: stacktest: read below stack %p\n", s, *sp);
+  2412:     exit(1);
+  2413    } else if(pid < 0){
+  2414      printf("%s: fork failed\n", s);
+  2415:     exit(1);
+  2416    }
+
+  2418    if(xstatus == -1)  // kernel killed child?
+  2419:     exit(0);
+  2420    else
+  2421:     exit(xstatus);
+  2422  }
+
+  2434      *addr = 10;
+  2435:     exit(1);
+  2436    } else if(pid < 0){
+  2437      printf("%s: fork failed\n", s);
+  2438:     exit(1);
+  2439    }
+
+  2441    if(xstatus == -1)  // kernel killed child?
+  2442:     exit(0);
+  2443    else
+  2444:     exit(xstatus);
+  2445  }
+
+  2458  
+  2459:   exit(0);
+  2460  }
+
+  2470      printf("fork failed\n");
+  2471:     exit(1);
+  2472    }
+
+  2476      // would not adjust p->sz correctly in this case,
+  2477:     // causing exit() to panic.
+  2478      sbrk(-sz);
+  2479      // user page fault here.
+  2480:     exit(0);
+  2481    }
+
+  2486      printf("fork failed\n");
+  2487:     exit(1);
+  2488    }
+
+  2494      sbrk(-(sz - 3500));
+  2495:     exit(0);
+  2496    }
+
+  2501      printf("fork failed\n");
+  2502:     exit(1);
+  2503    }
+
+  2512  
+  2513:     exit(0);
+  2514    }
+
+  2516  
+  2517:   exit(0);
+  2518  }
+
+  2542    if(p[0] != 'x')
+  2543:     exit(1);
+  2544  }
+
+  2570    
+  2571:   exit(0);
+  2572  }
+
+  2658      printf("%s: bigdir create failed\n", s);
+  2659:     exit(1);
+  2660    }
+
+  2669        printf("%s: bigdir link(bd, %s) failed\n", s, name);
+  2670:       exit(1);
+  2671      }
+
+  2681        printf("%s: bigdir unlink failed", s);
+  2682:       exit(1);
+  2683      }
+
+  2698        printf("fork failed\n");
+  2699:       exit(1);
+  2700      }
+
+  2713              printf("%s: cannot create %s\n", s, name);
+  2714:             exit(1);
+  2715            }
+
+  2719              printf("%s: write(%d) ret %d\n", s, sz, cc);
+  2720:             exit(1);
+  2721            }
+
+  2727        unlink(name);
+  2728:       exit(0);
+  2729      }
+
+  2735      if(st != 0)
+  2736:       exit(st);
+  2737    }
+  2738:   exit(0);
+  2739  }
+
+  2755        printf("open junk failed\n");
+  2756:       exit(1);
+  2757      }
+
+  2765      printf("open junk failed\n");
+  2766:     exit(1);
+  2767    }
+
+  2769      printf("write failed\n");
+  2770:     exit(1);
+  2771    }
+
+  2774  
+  2775:   exit(0);
+  2776  }
+
+  2787        printf("fork failed\n");
+  2788:       exit(1);
+  2789      } else if(pid == 0){
+
+  2805        exec("echo", args);
+  2806:       exit(0);
+  2807      } else {
+
+  2811  
+  2812:   exit(0);
+  2813  }
+
+  2941  
+  2942: // run each test in its own process. run returns 1 if child's exit()
+  2943  // indicates success.
+
+  2951      printf("runtest: fork error\n");
+  2952:     exit(1);
+  2953    }
+
+  2955      f(s);
+  2956:     exit(0);
+  2957    } else {
+
+  2993      printf("pipe() failed in countfree()\n");
+  2994:     exit(1);
+  2995    }
+
+  3000      printf("fork failed in countfree()\n");
+  3001:     exit(1);
+  3002    }
+
+  3018          printf("write() failed in countfree()\n");
+  3019:         exit(1);
+  3020        }
+
+  3022  
+  3023:     exit(0);
+  3024    }
+
+  3033        printf("read() failed in countfree()\n");
+  3034:       exit(1);
+  3035      }
+
+  3093      printf("Usage: usertests [-c] [-C] [-q] [testname]\n");
+  3094:     exit(1);
+  3095    }
+  3096    if (drivetests(quick, continuous, justone)) {
+  3097:     exit(1);
+  3098    }
+  3099    printf("ALL TESTS PASSED\n");
+  3100:   exit(0);
+  3101  }
+
+user/wc.c:
+  29      printf("wc: read error\n");
+  30:     exit(1);
+  31    }
+
+  41      wc(0, "");
+  42:     exit(0);
+  43    }
+
+  47        printf("wc: cannot open %s\n", argv[i]);
+  48:       exit(1);
+  49      }
+
+  52    }
+  53:   exit(0);
+  54  }
+
+user/zombie.c:
+  12      sleep(5);  // Let child exit before parent.
+  13:   exit(0);
+  14  }
