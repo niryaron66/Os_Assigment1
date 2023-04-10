@@ -445,7 +445,6 @@ int wait(uint64 addr, uint64 addr2)
         acquire(&pp->lock);
 
         havekids = 1;
-        copyout(p->pagetable, addr2, (char *)&pp->exit_msg, sizeof(pp->exit_msg));
         if (pp->state == ZOMBIE)
         {
           // Found one.
@@ -453,6 +452,7 @@ int wait(uint64 addr, uint64 addr2)
           if (addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
                                    sizeof(pp->xstate)) < 0)
           {
+            copyout(p->pagetable, addr2, (char *)&pp->exit_msg, sizeof(pp->exit_msg));
             release(&pp->lock);
             release(&wait_lock);
             return -1;
