@@ -490,7 +490,6 @@ default_scheduler(struct cpu *c)
 {
   struct proc *p;
   // Avoid deadlock by ensuring that devices can interrupt.
-  intr_on();
 
   for (p = proc; p < &proc[NPROC]; p++)
   {
@@ -515,16 +514,19 @@ default_scheduler(struct cpu *c)
 void priority_scheduler(struct cpu *c)
 {
   struct proc *p;
-  intr_on();
   struct proc *processToRun = 0;
-  long long minAccumulator = __LONG_LONG_MAX__;
+  long long minAccumulator = -1;
   for (p = proc; p < &proc[NPROC]; p++)
   {
-    if (p->state == RUNNABLE && p->accumulator < minAccumulator)
+    acquire(&p->lock);
+    if (p->state == RUNNABLE)
     {
-      minAccumulator = p->accumulator;
-      processToRun = p;
+      if(minAccumulator == -1 || p->accumulator < minAccumulator){
+         minAccumulator = p->accumulator;
+         processToRun = p;
+      }
     }
+    release(&p->lock);
   }
   if (processToRun)
   {
@@ -555,6 +557,7 @@ void scheduler(void)
   c->proc = 0;
   for (;;)
   {
+    intr_on();
     if (sched_policy == 0)
     {
       default_scheduler(c);
