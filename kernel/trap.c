@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "defs.h"
 
+extern void update_processes_ticks();
 struct spinlock tickslock;
 uint ticks;
 
@@ -168,6 +169,7 @@ clockintr()
 {
   acquire(&tickslock);
   ticks++;
+  update_processes_ticks(ticks);
   wakeup(&ticks);
   release(&tickslock);
 }

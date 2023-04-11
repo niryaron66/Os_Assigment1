@@ -603,11 +603,10 @@ void scheduler(void)
     {
       priority_scheduler(c);
     }
-    // else if (sched_policy == 2)
-    // {
-    //   printf("CFS scheduler started\n");
-    //   cfs_scheduler(c);
-    // }
+    else if (sched_policy == 2)
+    {
+      cfs_scheduler(c);
+    }
   }
 }
 
@@ -828,5 +827,20 @@ void procdump(void)
       state = "???";
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
+  }
+}
+
+void
+update_processes_ticks(void){
+  struct proc *p;
+  for (p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->state == SLEEPING)
+      p->stime++;
+    else  if(p->state == RUNNING)
+      p->rtime++;
+    else if (p->state == RUNNABLE)
+      p->retime++;
+    release(&p->lock);
   }
 }
