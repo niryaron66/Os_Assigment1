@@ -281,6 +281,10 @@ void userinit(void)
   p->state = RUNNABLE;
   p->ps_priority = 5;
   p->accumulator = 0;
+  p->cfs_priority = 100;
+  p->retime = 0;
+  p->stime = 0;
+  p->rtime = 0;
 
   release(&p->lock);
 }
@@ -329,7 +333,7 @@ int fork(void)
     return -1;
   }
   np->sz = p->sz;
-
+  np->cfs_priority = p->cfs_priority;
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
@@ -357,6 +361,7 @@ int fork(void)
   np->state = RUNNABLE;
   np->ps_priority = 5;
   np->accumulator = minAccumulator;
+  np->cfs_priority = p->cfs_priority;
   release(&np->lock);
 
   return pid;
@@ -523,6 +528,38 @@ void priority_scheduler(struct cpu *c)
     {
       if(minAccumulator == -1 || p->accumulator < minAccumulator){
          minAccumulator = p->accumulator;
+         processToRun = p;
+      }
+    }
+    release(&p->lock);
+  }
+  if (processToRun)
+  {
+    acquire(&processToRun->lock);
+    if (processToRun->state == RUNNABLE)
+    {
+      processToRun->state = RUNNING;
+      c->proc = processToRun;
+      swtch(&c->context, &processToRun->context);
+      c->proc = 0;
+    }
+    release(&processToRun->lock);
+  }
+}
+
+void cfs_scheduler(struct cpu *c)
+{
+  struct proc *p;
+  struct proc *processToRun = 0;
+  int min_vruntime = -1;
+  for (p = proc; p < &proc[NPROC]; p++)
+  {
+    acquire(&p->lock);
+    if (p->state == RUNNABLE)
+    {
+      int p_vruntime = p->cfs_priority * (p->rtime / (p->rtime + p->retime + p->stime));
+      if(min_vruntime == -1 || p_vruntime < min_vruntime){
+         min_vruntime = p_vruntime;
          processToRun = p;
       }
     }
