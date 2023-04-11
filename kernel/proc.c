@@ -14,6 +14,7 @@ struct proc *initproc;
 
 int nextpid = 1;
 struct spinlock pid_lock;
+int sched_policy = 0;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
@@ -314,7 +315,6 @@ int fork(void)
   int i, pid;
   struct proc *np;
   struct proc *p = myproc();
-
   // Allocate process.
   if ((np = allocproc()) == 0)
   {
@@ -684,6 +684,7 @@ int killed(struct proc *p)
   release(&p->lock);
   return k;
 }
+
 
 // Copy to either a user address, or kernel address,
 // depending on usr_dst.

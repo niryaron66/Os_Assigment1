@@ -38,3 +38,4 @@ entry("sleep");
 entry("uptime");
 entry("memsize");
 entry("set_ps_priority");
+entry("set_policy");

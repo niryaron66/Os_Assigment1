@@ -6,6 +6,7 @@
 #include "spinlock.h"
 #include "proc.h"
 
+extern int sched_policy;
 uint64
 sys_exit(void) //TODO : check if need add char*
 {
@@ -118,3 +119,17 @@ sys_set_ps_priority(void)
   //set_ps_priority(new_ps_priority);  TODO : maybe return it 
   return 0;
 }
+
+uint64
+sys_set_policy(void)
+{
+  int new_scheduler_policy;
+  argint(0, &new_scheduler_policy);
+  if (new_scheduler_policy < 0 || new_scheduler_policy > 2) {
+        panic("invalid policy number.");
+        return -1; 
+    }
+  sched_policy = new_scheduler_policy;
+  return 0; 
+}
+
