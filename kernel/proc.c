@@ -36,11 +36,11 @@ long long get_minimun_accumulator()
   for (p = proc; p < &proc[NPROC]; p++)
   {
     acquire(&p->lock);
-    if (p->xstate == RUNNABLE)
+    if (p->state == RUNNABLE)
       numberOfRunnableProcesses++;
     release(&p->lock);
 
-    if (p != myproc() && (p->xstate == RUNNABLE || p->xstate == RUNNING))
+    if (p != myproc() && (p->state == RUNNABLE || p->state == RUNNING))
     {
       acquire(&p->lock);
       if (p->accumulator < minAccumulator)
