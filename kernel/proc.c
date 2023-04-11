@@ -27,7 +27,7 @@ extern char trampoline[]; // trampoline.S
 // must be acquired before any p->lock.
 struct spinlock wait_lock;
 
-int get_minimun_accumulator()
+long long get_minimun_accumulator()
 {
   struct proc *p;
   int numberOfRunnableProcesses = 0;
@@ -452,7 +452,14 @@ int wait(uint64 addr, uint64 addr2)
           if (addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
                                    sizeof(pp->xstate)) < 0)
           {
-            copyout(p->pagetable, addr2, (char *)&pp->exit_msg, sizeof(pp->exit_msg));
+            release(&pp->lock);
+            release(&wait_lock);
+            return -1;
+          }
+          // This brings up Gibrish, a soultion for that may be to change all exit call to have a message instead 0.
+          if (addr2 != 0 && copyout(p->pagetable, addr2, (char *)&pp->exit_msg,
+                                   sizeof(pp->exit_msg)) < 0)
+          {
             release(&pp->lock);
             release(&wait_lock);
             return -1;
@@ -478,6 +485,61 @@ int wait(uint64 addr, uint64 addr2)
   }
 }
 
+void
+default_scheduler(struct cpu *c)
+{
+  struct proc *p;
+  // Avoid deadlock by ensuring that devices can interrupt.
+  intr_on();
+
+  for (p = proc; p < &proc[NPROC]; p++)
+  {
+    acquire(&p->lock);
+    if (p->state == RUNNABLE)
+    {
+      // Switch to chosen process.  It is the process's job
+      // to release its lock and then reacquire it
+      // before jumping back to us.
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    }
+    release(&p->lock);
+  }
+}
+
+void priority_scheduler(struct cpu *c)
+{
+  struct proc *p;
+  intr_on();
+  struct proc *processToRun = 0;
+  long long minAccumulator = __LONG_LONG_MAX__;
+  for (p = proc; p < &proc[NPROC]; p++)
+  {
+    if (p->state == RUNNABLE && p->accumulator < minAccumulator)
+    {
+      minAccumulator = p->accumulator;
+      processToRun = p;
+    }
+  }
+  if (processToRun)
+  {
+    acquire(&processToRun->lock);
+    if (processToRun->state == RUNNABLE)
+    {
+      processToRun->state = RUNNING;
+      c->proc = processToRun;
+      swtch(&c->context, &processToRun->context);
+      c->proc = 0;
+    }
+    release(&processToRun->lock);
+  }
+}
+
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
 // Scheduler never returns.  It loops, doing:
@@ -485,50 +547,31 @@ int wait(uint64 addr, uint64 addr2)
 //  - swtch to start running that process.
 //  - eventually that process transfers control
 //    via swtch back to the scheduler.
+
 void scheduler(void)
 {
-  struct proc *p;
   struct cpu *c = mycpu();
 
   c->proc = 0;
   for (;;)
   {
-    // Avoid deadlock by ensuring that devices can interrupt.
-    intr_on();
-
-    struct proc *processToRun = 0;
-    long long minAccumulator = __LONG_LONG_MAX__;
-    for (p = proc; p < &proc[NPROC]; p++)
+    if (sched_policy == 0)
     {
-      if (p->state == RUNNABLE && p->accumulator < minAccumulator)
-      {
-        minAccumulator = p->accumulator;
-        processToRun = p;
-      }
+      default_scheduler(c);
     }
-    if (processToRun)
+    else if (sched_policy == 1)
     {
-      acquire(&processToRun->lock);
-      if (processToRun->state == RUNNABLE)
-      {
-        processToRun->state = RUNNING;
-        c->proc = processToRun;
-        swtch(&c->context, &processToRun->context);
-        c->proc = 0;
-      }
-      release(&processToRun->lock);
+      priority_scheduler(c);
     }
-    // struct proc *processToRun = processToRun;
-    // for (p = proc; p < &proc[NPROC]; p++)
+    // else if (sched_policy == 2)
     // {
-    //   if (p->accumulator == minAccumulator && p->state == RUNNABLE)
-    //   {
-    //     running_lowest_accum_proc = p;
-    //     break;
-    //   }
+    //   printf("CFS scheduler started\n");
+    //   cfs_scheduler(c);
     // }
   }
 }
+
+
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores
@@ -684,7 +727,6 @@ int killed(struct proc *p)
   release(&p->lock);
   return k;
 }
-
 
 // Copy to either a user address, or kernel address,
 // depending on usr_dst.
