@@ -99,7 +99,10 @@ struct proc {
   
   long long accumulator;
   int ps_priority;
-
+  int cfs_priority;
+  int rtime;
+  int stime;
+  int retime;
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack
   uint64 sz;                   // Size of process memory (bytes)

@@ -7,6 +7,8 @@
 #include "proc.h"
 
 extern int sched_policy;
+extern struct proc proc[NPROC];
+
 uint64
 sys_exit(void) //TODO : check if need add char*
 {
@@ -132,3 +134,40 @@ sys_set_policy(void)
   return 0; 
 }
 
+uint64
+sys_set_cfs_priority(void)
+{
+  int new_cfs_priority;
+  argint(0, &new_cfs_priority);
+  if (new_cfs_priority < 0 || new_cfs_priority > 2) {
+        return -1; 
+    }
+  if (new_cfs_priority == 0)
+    myproc()->cfs_priority = 75;
+  else if (new_cfs_priority == 1)
+    myproc()->cfs_priority = 100;
+  else 
+    myproc()->cfs_priority =  125;
+  return 0; 
+}
+
+// int*  // TODO: check if its comaptiable as a pointer.
+//  sys_get_cfs_stats(void)
+// {
+//   int stats[4];
+//   int pid;
+//   argint(0, &pid);
+//   struct proc *process;
+//   struct proc *p;
+//   for (p = proc; p < &proc[NPROC]; p++){
+//     if (p->pid == pid){
+//       process = p;
+//       break;
+//     }
+//   }
+//   stats[0] = process->ps_priority ;
+//   stats[1] = process->stime;
+//   stats[2] = process->retime;
+//   stats[3] = process->rtime ;
+//   return stats;
+// }
