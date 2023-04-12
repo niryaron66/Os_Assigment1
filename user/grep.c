@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 
   if(argc <= 2){
     grep(pattern, 0);
-    exit(0,0);
+    exit(0,"");
   }
 
   for(i = 2; i < argc; i++){
@@ -58,7 +58,7 @@ main(int argc, char *argv[])
     grep(pattern, fd);
     close(fd);
   }
-  exit(0,0);
+  exit(0,"");
 }
 
 // Regexp matcher from Kernighan & Pike,

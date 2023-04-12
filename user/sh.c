@@ -128,7 +128,7 @@ runcmd(struct cmd *cmd)
       runcmd(bcmd->cmd);
     break;
   }
-  exit(0,0);
+  exit(0,"");
 }
 
 int
@@ -173,7 +173,7 @@ main(void)
     printf("%s",buffer);
   }
   // printf(proc()->exit_msg)
-  exit(0,0);
+  exit(0,"");
 }
 
 void

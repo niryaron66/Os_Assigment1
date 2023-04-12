@@ -9,5 +9,5 @@ int main(int argc, char *argv[]) {
   free(p);
   printf("%d\n",memsize());
 
-  exit(0,0);
+  exit(0,"");
 }

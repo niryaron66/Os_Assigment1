@@ -107,7 +107,7 @@ go(int which_child)
     } else if(what == 13){
       int pid = fork();
       if(pid == 0){
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -118,7 +118,7 @@ go(int which_child)
       if(pid == 0){
         fork();
         fork();
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -133,7 +133,7 @@ go(int which_child)
       int pid = fork();
       if(pid == 0){
         close(open("a", O_CREATE|O_RDWR));
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -148,7 +148,7 @@ go(int which_child)
       int pid = fork();
       if(pid == 0){
         kill(getpid());
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -169,7 +169,7 @@ go(int which_child)
         char c;
         if(read(fds[0], &c, 1) != 1)
           printf("grind: pipe read failed\n");
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -186,7 +186,7 @@ go(int which_child)
         unlink("../a");
         fd = open("x", O_CREATE|O_RDWR);
         unlink("x");
-        exit(0,0);
+        exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
         exit(1,0);
@@ -307,7 +307,7 @@ iter()
   if(pid1 == 0){
     rand_next ^= 31;
     go(0);
-    exit(0,0);
+    exit(0,"");
   }
 
   int pid2 = fork();
@@ -318,7 +318,7 @@ iter()
   if(pid2 == 0){
     rand_next ^= 7177;
     go(1);
-    exit(0,0);
+    exit(0,"");
   }
 
   int st1 = -1;
@@ -330,7 +330,7 @@ iter()
   int st2 = -1;
   wait(&st2,0);
 
-  exit(0,0);
+  exit(0,"");
 }
 
 int
@@ -340,7 +340,7 @@ main()
     int pid = fork();
     if(pid == 0){
       iter();
-      exit(0,0);
+      exit(0,"");
     }
     if(pid > 0){
       wait(0,0);

@@ -15,5 +15,5 @@ int main(int argc, char *argv[]) {
    else  if (result == 0) 
     printf("Policy set successfully\n");
   
-  exit(0,0);
+  exit(0,"");
 }
