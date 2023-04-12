@@ -416,7 +416,7 @@ truncate3(char *s)
 
   wait(&xstatus,0);
   unlink("truncfile");
-  exit(xstatus,0);
+  exit(xstatus,"");
 }
   
 
@@ -469,7 +469,7 @@ exitiputtest(char *s)
     exit(0,"");
   }
   wait(&xstatus,0);
-  exit(xstatus,0);
+  exit(xstatus,"");
 }
 
 // does the error path in open() for attempt to write a
@@ -511,7 +511,7 @@ openiputtest(char *s)
     exit(1,"");
   }
   wait(&xstatus,0);
-  exit(xstatus,0);
+  exit(xstatus,"");
 }
 
 // simple file system tests
@@ -709,7 +709,7 @@ exectest(char *s)
     printf("%s: wait failed!\n", s);
   }
   if(xstatus != 0)
-    exit(xstatus,0);
+    exit(xstatus,"");
 
   fd = open("echo-ok", O_RDONLY);
   if(fd < 0) {
@@ -778,7 +778,7 @@ pipe1(char *s)
     }
     close(fds[0]);
     wait(&xstatus,0);
-    exit(xstatus,0);
+    exit(xstatus,"");
   } else {
     printf("%s: fork() failed\n", s);
     exit(1,"");
@@ -1082,7 +1082,7 @@ mem(char *s)
       // so OK.
       exit(0,"");
     }
-    exit(xstatus,0);
+    exit(xstatus,"");
   }
 }
 
@@ -1117,7 +1117,7 @@ sharedfd(char *s)
     int xstatus;
     wait(&xstatus,0);
     if(xstatus != 0)
-      exit(xstatus,0);
+      exit(xstatus,"");
   }
   
   close(fd);
@@ -1187,7 +1187,7 @@ fourfiles(char *s)
   for(pi = 0; pi < NCHILD; pi++){
     wait(&xstatus,0);
     if(xstatus != 0)
-      exit(xstatus,0);
+      exit(xstatus,"");
   }
 
   for(i = 0; i < NCHILD; i++){
@@ -2054,7 +2054,7 @@ sbrkbasic(char *s)
   if(pid == 0)
     exit(0,"");
   wait(&xstatus,0);
-  exit(xstatus,0);
+  exit(xstatus,"");
 }
 
 void
@@ -2321,7 +2321,7 @@ bigargtest(char *s)
   
   wait(&xstatus,0);
   if(xstatus != 0)
-    exit(xstatus,0);
+    exit(xstatus,"");
   fd = open("bigarg-ok", 0);
   if(fd < 0){
     printf("%s: bigarg test failed!\n", s);
@@ -2418,7 +2418,7 @@ stacktest(char *s)
   if(xstatus == -1)  // kernel killed child?
     exit(0,"");
   else
-    exit(xstatus,0);
+    exit(xstatus,"");
 }
 
 // check that writes to text segment fault
@@ -2441,7 +2441,7 @@ textwrite(char *s)
   if(xstatus == -1)  // kernel killed child?
     exit(0,"");
   else
-    exit(xstatus,0);
+    exit(xstatus,"");
 }
 
 // regression test. copyin(), copyout(), and copyinstr() used to cast

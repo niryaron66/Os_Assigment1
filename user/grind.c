@@ -58,7 +58,7 @@ go(int which_child)
   mkdir("grindir");
   if(chdir("grindir") != 0){
     printf("grind: chdir grindir failed\n");
-    exit(1,0);
+    exit(1,"");
   }
   chdir("/");
   
@@ -76,7 +76,7 @@ go(int which_child)
     } else if(what == 4){
       if(chdir("grindir") != 0){
         printf("grind: chdir grindir failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       unlink("../b");
       chdir("/");
@@ -110,7 +110,7 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       wait(0,0);
     } else if(what == 14){
@@ -121,7 +121,7 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       wait(0,0);
     } else if(what == 15){
@@ -136,11 +136,11 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       if(chdir("../grindir/..") != 0){
         printf("grind: chdir failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       kill(pid);
       wait(0,0);
@@ -151,14 +151,14 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       wait(0,0);
     } else if(what == 19){
       int fds[2];
       if(pipe(fds) < 0){
         printf("grind: pipe failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       int pid = fork();
       if(pid == 0){
@@ -172,7 +172,7 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       close(fds[0]);
       close(fds[1]);
@@ -189,7 +189,7 @@ go(int which_child)
         exit(0,"");
       } else if(pid < 0){
         printf("grind: fork failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       wait(0,0);
     } else if(what == 21){
@@ -199,24 +199,24 @@ go(int which_child)
       int fd1 = open("c", O_CREATE|O_RDWR);
       if(fd1 < 0){
         printf("grind: create c failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       if(write(fd1, "x", 1) != 1){
         printf("grind: write c failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       struct stat st;
       if(fstat(fd1, &st) != 0){
         printf("grind: fstat failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       if(st.size != 1){
         printf("grind: fstat reports wrong size %d\n", (int)st.size);
-        exit(1,0);
+        exit(1,"");
       }
       if(st.ino > 200){
         printf("grind: fstat reports crazy i-number %d\n", st.ino);
-        exit(1,0);
+        exit(1,"");
       }
       close(fd1);
       unlink("c");
@@ -225,11 +225,11 @@ go(int which_child)
       int aa[2], bb[2];
       if(pipe(aa) < 0){
         fprintf(2, "grind: pipe failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       if(pipe(bb) < 0){
         fprintf(2, "grind: pipe failed\n");
-        exit(1,0);
+        exit(1,"");
       }
       int pid1 = fork();
       if(pid1 == 0){
@@ -239,7 +239,7 @@ go(int which_child)
         close(1);
         if(dup(aa[1]) != 1){
           fprintf(2, "grind: dup failed\n");
-          exit(1,0);
+          exit(1,"");
         }
         close(aa[1]);
         char *args[3] = { "echo", "hi", 0 };
@@ -287,7 +287,7 @@ go(int which_child)
       wait(&st2,0);
       if(st1 != 0 || st2 != 0 || strcmp(buf, "hi\n") != 0){
         printf("grind: exec pipeline failed %d %d \"%s\"\n", st1, st2, buf);
-        exit(1,0);
+        exit(1,"");
       }
     }
   }
@@ -302,7 +302,7 @@ iter()
   int pid1 = fork();
   if(pid1 < 0){
     printf("grind: fork failed\n");
-    exit(1,0);
+    exit(1,"");
   }
   if(pid1 == 0){
     rand_next ^= 31;
@@ -313,7 +313,7 @@ iter()
   int pid2 = fork();
   if(pid2 < 0){
     printf("grind: fork failed\n");
-    exit(1,0);
+    exit(1,"");
   }
   if(pid2 == 0){
     rand_next ^= 7177;
