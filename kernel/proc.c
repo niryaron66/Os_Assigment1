@@ -175,7 +175,12 @@ found:
   memset(&p->context, 0, sizeof(p->context));
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
-
+  p->ps_priority = 5;
+  p->accumulator = 0;
+  p->cfs_priority = 1;
+  p->retime = 0;
+  p->stime = 0;
+  p->rtime = 0;
   return p;
 }
 
@@ -279,12 +284,12 @@ void userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
-  p->ps_priority = 5;
-  p->accumulator = 0;
-  p->cfs_priority = 1;
-  p->retime = 0;
-  p->stime = 0;
-  p->rtime = 0;
+  // p->ps_priority = 5;
+  // p->accumulator = 0;
+  // p->cfs_priority = 1;
+  // p->retime = 0;
+  // p->stime = 0;
+  // p->rtime = 0;
 
   release(&p->lock);
 }

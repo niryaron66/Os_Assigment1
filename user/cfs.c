@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     pid1 = fork();
     if (pid1 == 0)
     { // Child
+        sleep(1);
         set_cfs_priority(2);
         run_loop_and_sleep();
         printf("Childe 1 finished \n");
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
         pid2 = fork();
         if (pid2 == 0)
         {
+            sleep(2);
             set_cfs_priority(1);
             run_loop_and_sleep();
             printf("Childe 2 finished \n");
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
             pid3 = fork();
             if (pid3 == 0)
             {
+                sleep(3);
                 set_cfs_priority(0);
                 run_loop_and_sleep();
                 printf("Childe 3 finished \n");
