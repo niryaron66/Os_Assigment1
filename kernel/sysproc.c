@@ -151,23 +151,30 @@ sys_set_cfs_priority(void)
   return 0; 
 }
 
-// int*  // TODO: check if its comaptiable as a pointer.
-//  sys_get_cfs_stats(void)
-// {
-//   int stats[4];
-//   int pid;
-//   argint(0, &pid);
-//   struct proc *process;
-//   struct proc *p;
-//   for (p = proc; p < &proc[NPROC]; p++){
-//     if (p->pid == pid){
-//       process = p;
-//       break;
-//     }
-//   }
-//   stats[0] = process->ps_priority ;
-//   stats[1] = process->stime;
-//   stats[2] = process->retime;
-//   stats[3] = process->rtime ;
-//   return stats;
-// }
+int   
+ sys_get_cfs_stats(void) 
+{
+  //Explanation: we counting on getting two parameters: PID, and address for the int[4] array.
+  //We will then load the the given address with the stats. 
+  //Finally, we will return 0 or -1, for success or failure.
+  uint64 stats[4];
+  int pid;
+  argint(0, &pid);
+  argaddr(1, stats);
+  struct proc *process;
+  struct proc *p;
+  for (p = proc; p < &proc[NPROC]; p++){
+    if (p->pid == pid){
+      process = p;
+      break;
+    }
+  }
+  if (process == 0)
+    return -1;
+
+  stats[0] = process->ps_priority;
+  stats[1] = process->stime;
+  stats[2] = process->retime;
+  stats[3] = process->rtime;
+  return 0;
+}

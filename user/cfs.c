@@ -16,7 +16,7 @@ void run_loop_and_sleep()
 int main()
 {
     int pid1, pid2, pid3;
-    int *p1_stats, p2_stats, p3_stats;
+    int p1_stats[4], p2_stats[4], p3_stats[4];
 
     pid1 = fork();
     if (pid1 == 0)
@@ -27,7 +27,6 @@ int main()
 
     else
     { // Parent
-        p1_stats = get_cfs_stats(pid1);
         pid2 = fork();
         if (pid2 == 0)
         {
@@ -46,11 +45,11 @@ int main()
                 wait(0,"");
                 wait(0,"");
                 wait(0,"");
-               p1_stats = get_cfs_stats(pid1);
-               p2_stats = get_cfs_stats(pid2);
-               p3_stats = get_cfs_stats(pid3);
-               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid1,performance->ps_priority, performance->stime,performance->retime,performance->retime);
-            }
+               get_cfs_stats(pid1, p1_stats);
+               get_cfs_stats(pid2, p2_stats);
+               get_cfs_stats(pid3, p3_stats);
+               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid1,p1_stats[0], p1_stats[3], p1_stats[1], p1_stats[2]);
+            }  
         }
     }
 
