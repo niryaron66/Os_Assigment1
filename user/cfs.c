@@ -1,3 +1,6 @@
+#include "kernel/types.h"
+#include "kernel/stat.h"
+#include "user/user.h"
 
 #define LOOP_COUNT 1000000
 #define SLEEP_COUNT 100000
@@ -13,11 +16,10 @@ void run_loop_and_sleep()
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     int pid1, pid2, pid3;
     int p1_stats[4], p2_stats[4], p3_stats[4];
-
     pid1 = fork();
     if (pid1 == 0)
     { // Child
@@ -49,6 +51,9 @@ int main()
                get_cfs_stats(pid2, p2_stats);
                get_cfs_stats(pid3, p3_stats);
                printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid1,p1_stats[0], p1_stats[3], p1_stats[1], p1_stats[2]);
+               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid2,p2_stats[0], p2_stats[3], p2_stats[1], p2_stats[2]);
+               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid3,p3_stats[0], p3_stats[3], p3_stats[1], p3_stats[2]);
+
             }  
         }
     }

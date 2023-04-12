@@ -151,17 +151,18 @@ sys_set_cfs_priority(void)
   return 0; 
 }
 
-int   
+uint64   
  sys_get_cfs_stats(void) 
 {
   //Explanation: we counting on getting two parameters: PID, and address for the int[4] array.
   //We will then load the the given address with the stats. 
   //Finally, we will return 0 or -1, for success or failure.
-  uint64 stats[4];
+  int stats[4];
+  uint64 addr;
   int pid;
   argint(0, &pid);
-  argaddr(1, stats);
-  struct proc *process;
+  argaddr(1, &addr);
+  struct proc *process = 0;
   struct proc *p;
   for (p = proc; p < &proc[NPROC]; p++){
     if (p->pid == pid){
@@ -170,11 +171,33 @@ int
     }
   }
   if (process == 0)
-    return -1;
+    return 0;
 
   stats[0] = process->ps_priority;
   stats[1] = process->stime;
   stats[2] = process->retime;
   stats[3] = process->rtime;
-  return 0;
+  
+  copyout(p->pagetable, addr, (char *)stats, 4 * sizeof(int));
+  return addr;
 }
+
+// uint64
+// sys_get_cfs_stats(){
+//   int pid=-1;
+//   uint64 addr;
+//   argint(0, &pid);
+//   argaddr(1, &addr);
+//   char* ans = "1111";
+//   struct proc* p = getProc(pid);
+//   //printf("%d\n", p->pid);
+//   if(p != 0){
+//     ans[0]=p->cfs_priority;
+//     ans[1]=p->rtime;
+//     ans[2]=p->stime;
+//     ans[3]=p->retime;
+
+//   }
+//   copyout(p->pagetable, addr, ans, 4);
+//   return 0;
+// }
