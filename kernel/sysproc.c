@@ -142,12 +142,7 @@ sys_set_cfs_priority(void)
   if (new_cfs_priority < 0 || new_cfs_priority > 2) {
         return -1; 
     }
-  if (new_cfs_priority == 0)
-    myproc()->cfs_priority = 75;
-  else if (new_cfs_priority == 1)
-    myproc()->cfs_priority = 100;
-  else 
-    myproc()->cfs_priority =  125;
+  myproc()->cfs_priority = new_cfs_priority;
   return 0; 
 }
 
@@ -173,10 +168,10 @@ uint64
   if (process == 0)
     return 0;
 
-  stats[0] = process->ps_priority;
-  stats[1] = process->stime;
-  stats[2] = process->retime;
-  stats[3] = process->rtime;
+  stats[0] = process->cfs_priority;
+  stats[1] = process->rtime;
+  stats[2] = process->stime;
+  stats[3] = process->retime;
   
   copyout(p->pagetable, addr, (char *)stats, 4 * sizeof(int));
   return addr;

@@ -25,6 +25,12 @@ int main(int argc, char *argv[])
     { // Child
         set_cfs_priority(2);
         run_loop_and_sleep();
+        printf("Childe 1 finished \n");
+        int pid = getpid();
+        get_cfs_stats(pid, p1_stats);
+        sleep(1);
+        printf("P1 pid %d stats are:\n cfs priority: %d, runtime: %d, stime: %d, retime: %d \n",pid,p1_stats[0], p1_stats[1], p1_stats[2], p1_stats[3]);
+        exit(0,"");
     }
 
     else
@@ -34,6 +40,13 @@ int main(int argc, char *argv[])
         {
             set_cfs_priority(1);
             run_loop_and_sleep();
+            printf("Childe 2 finished \n");
+            int pid = getpid();
+            get_cfs_stats(pid, p2_stats);
+            sleep(5);
+            printf("P2 pid %d stats are:\n cfs priority: %d, runtime: %d, stime: %d, retime: %d \n",pid,p2_stats[0], p2_stats[1], p2_stats[2], p2_stats[3]);
+            exit(0,"");
+
         }
         else
         {
@@ -42,17 +55,18 @@ int main(int argc, char *argv[])
             {
                 set_cfs_priority(0);
                 run_loop_and_sleep();
+                printf("Childe 3 finished \n");
+                int pid = getpid();
+                get_cfs_stats(pid, p3_stats);
+                sleep(10);
+                printf("P3 pid %d stats are:\n cfs priority: %d, runtime: %d, stime: %d, retime: %d \n",pid,p3_stats[0], p3_stats[1], p3_stats[2], p3_stats[3]);
+                exit(0,"");
+
             }
             else{
-                wait(0,"");
-                wait(0,"");
-                wait(0,"");
-               get_cfs_stats(pid1, p1_stats);
-               get_cfs_stats(pid2, p2_stats);
-               get_cfs_stats(pid3, p3_stats);
-               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid1,p1_stats[0], p1_stats[3], p1_stats[1], p1_stats[2]);
-               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid2,p2_stats[0], p2_stats[3], p2_stats[1], p2_stats[2]);
-               printf("P1 pid %d stats are:\n cfs priority time: %d, runtime: %d, stime: %d, retime: %d",pid3,p3_stats[0], p3_stats[3], p3_stats[1], p3_stats[2]);
+                wait(0,0);
+                wait(0,0);
+                wait(0,0);
 
             }  
         }

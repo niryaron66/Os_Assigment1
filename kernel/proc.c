@@ -281,7 +281,7 @@ void userinit(void)
   p->state = RUNNABLE;
   p->ps_priority = 5;
   p->accumulator = 0;
-  p->cfs_priority = 100;
+  p->cfs_priority = 1;
   p->retime = 0;
   p->stime = 0;
   p->rtime = 0;
@@ -547,6 +547,16 @@ void priority_scheduler(struct cpu *c)
   }
 }
 
+int get_factor(int cfs_priority){
+  if(cfs_priority == 0)
+    return 75;
+    
+  if(cfs_priority == 1)
+   return 100;
+
+  return 125;
+}
+
 void cfs_scheduler(struct cpu *c)
 {
   struct proc *p;
@@ -557,7 +567,7 @@ void cfs_scheduler(struct cpu *c)
     acquire(&p->lock);
     if (p->state == RUNNABLE)
     {
-      int p_vruntime = p->cfs_priority * (p->rtime / (p->rtime + p->retime + p->stime));
+      int p_vruntime = get_factor(p->cfs_priority) * (p->rtime / (p->rtime + p->retime + p->stime));
       if(min_vruntime == -1 || p_vruntime < min_vruntime){
          min_vruntime = p_vruntime;
          processToRun = p;
