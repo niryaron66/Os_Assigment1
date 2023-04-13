@@ -2,8 +2,8 @@
 #include "kernel/stat.h"
 #include "user/user.h"
 
-#define LOOP_COUNT 1000000
-#define SLEEP_COUNT 100000
+#define LOOP_COUNT 1000000000
+#define SLEEP_COUNT 100000000
 
 void run_loop_and_sleep()
 {
@@ -26,7 +26,6 @@ int main(int argc, char *argv[])
         sleep(1);
         set_cfs_priority(2);
         run_loop_and_sleep();
-        printf("Childe 1 finished \n");
         int pid = getpid();
         get_cfs_stats(pid, p1_stats);
         sleep(1);
@@ -42,7 +41,6 @@ int main(int argc, char *argv[])
             sleep(2);
             set_cfs_priority(1);
             run_loop_and_sleep();
-            printf("Childe 2 finished \n");
             int pid = getpid();
             get_cfs_stats(pid, p2_stats);
             sleep(5);
@@ -58,7 +56,6 @@ int main(int argc, char *argv[])
                 sleep(3);
                 set_cfs_priority(0);
                 run_loop_and_sleep();
-                printf("Childe 3 finished \n");
                 int pid = getpid();
                 get_cfs_stats(pid, p3_stats);
                 sleep(10);
